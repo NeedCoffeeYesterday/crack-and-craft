@@ -13,7 +13,9 @@ export interface GreenCoffee {
   id: string;
   name: string;
   origin?: string;
-  process?: string;
+  altitude?: string;
+  purchaseDate?: string;
+  flavourNotes?: string;
 }
 
 export interface Roast {

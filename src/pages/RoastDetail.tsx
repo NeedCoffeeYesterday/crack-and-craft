@@ -4,6 +4,7 @@ import { Roast, DataPoint } from '@/types/roast';
 import { getRoastById, saveRoast, deleteRoast } from '@/lib/storage';
 import { RoastGraph } from '@/components/RoastGraph';
 import { DataPointDetail } from '@/components/DataPointDetail';
+import { CoffeeDetails } from '@/components/CoffeeDetails';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ArrowLeft, Coffee, Clock, Thermometer, Flame, Trash2 } from 'lucide-react';
@@ -158,14 +159,16 @@ const RoastDetail = () => {
       </header>
 
       <main className="container py-6 space-y-6">
-        {/* Roast Info */}
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Coffee className="w-5 h-5 text-primary" />
-            <h1 className="text-xl font-bold">{roast.coffeeName}</h1>
+        {/* Roast Info with Coffee Details */}
+        <Card className="p-4">
+          <div className="flex items-start gap-3">
+            <Coffee className="w-6 h-6 text-primary shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <CoffeeDetails coffeeId={roast.coffeeId} coffeeName={roast.coffeeName} />
+              <p className="text-sm text-muted-foreground mt-2">{formatDate(roast.startTime)}</p>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">{formatDate(roast.startTime)}</p>
-        </div>
+        </Card>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3">

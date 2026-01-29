@@ -49,13 +49,14 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Warm, muted colors for light theme
   const getMarkerColor = (type: string) => {
     switch (type) {
-      case 'first-crack': return 'hsl(0, 75%, 55%)';
-      case 'second-crack': return 'hsl(25, 90%, 50%)';
-      case 'note': return 'hsl(270, 60%, 65%)';
-      case 'voice': return 'hsl(150, 60%, 50%)';
-      default: return 'hsl(35, 85%, 55%)';
+      case 'first-crack': return 'hsl(0, 55%, 50%)';
+      case 'second-crack': return 'hsl(30, 65%, 45%)';
+      case 'note': return 'hsl(270, 40%, 55%)';
+      case 'voice': return 'hsl(150, 45%, 40%)';
+      default: return 'hsl(25, 50%, 40%)';
     }
   };
 
@@ -81,7 +82,7 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="hsl(25, 15%, 18%)"
+            stroke="hsl(30, 15%, 80%)"
             vertical={false}
           />
           <XAxis
@@ -89,23 +90,24 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
             type="number"
             domain={[0, Math.ceil(maxTime / 60) * 60]}
             tickFormatter={formatTime}
-            stroke="hsl(35, 15%, 45%)"
-            tick={{ fontSize: 11, fill: 'hsl(35, 15%, 55%)' }}
-            axisLine={{ stroke: 'hsl(25, 15%, 25%)' }}
+            stroke="hsl(25, 20%, 55%)"
+            tick={{ fontSize: 11, fill: 'hsl(25, 15%, 45%)' }}
+            axisLine={{ stroke: 'hsl(30, 15%, 75%)' }}
           />
           <YAxis
             domain={[0, Math.ceil(maxTemp / 50) * 50]}
-            stroke="hsl(35, 15%, 45%)"
-            tick={{ fontSize: 11, fill: 'hsl(35, 15%, 55%)' }}
-            axisLine={{ stroke: 'hsl(25, 15%, 25%)' }}
+            stroke="hsl(25, 20%, 55%)"
+            tick={{ fontSize: 11, fill: 'hsl(25, 15%, 45%)' }}
+            axisLine={{ stroke: 'hsl(30, 15%, 75%)' }}
             tickFormatter={(value) => `${value}°`}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'hsl(20, 12%, 14%)',
-              border: '1px solid hsl(25, 15%, 25%)',
+              backgroundColor: 'hsl(40, 25%, 94%)',
+              border: '1px solid hsl(30, 20%, 80%)',
               borderRadius: '8px',
               fontSize: '12px',
+              color: 'hsl(25, 30%, 20%)',
             }}
             labelFormatter={formatTime}
             formatter={(value: number) => [`${value}°C`, 'Temperature']}
@@ -113,13 +115,13 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
           <Line
             type="monotone"
             dataKey="temperature"
-            stroke="hsl(35, 85%, 55%)"
+            stroke="hsl(25, 50%, 40%)"
             strokeWidth={2.5}
             dot={false}
             activeDot={{
               r: 6,
-              fill: 'hsl(35, 85%, 55%)',
-              stroke: 'hsl(20, 12%, 12%)',
+              fill: 'hsl(25, 50%, 40%)',
+              stroke: 'hsl(40, 25%, 92%)',
               strokeWidth: 2,
             }}
           />
@@ -135,7 +137,7 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
           {currentTime !== undefined && (
             <ReferenceLine
               x={currentTime}
-              stroke="hsl(35, 85%, 55%)"
+              stroke="hsl(25, 50%, 45%)"
               strokeWidth={1}
               strokeDasharray="2 2"
             />
@@ -150,7 +152,7 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
               key={marker.id}
               onClick={() => onPointClick?.(marker)}
               className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-full transition-all hover:opacity-80 active:scale-95"
-              style={{ backgroundColor: `${getMarkerColor(marker.type)}20`, color: getMarkerColor(marker.type) }}
+              style={{ backgroundColor: `${getMarkerColor(marker.type)}18`, color: getMarkerColor(marker.type) }}
             >
               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getMarkerColor(marker.type) }} />
               {formatTime(marker.timestamp)} - {marker.type === 'first-crack' ? '1st' : marker.type === 'second-crack' ? '2nd' : marker.type}
