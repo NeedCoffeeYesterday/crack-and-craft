@@ -6,8 +6,7 @@ interface AdBannerProps {
   className?: string;
 }
 
-// Set your AdSense publisher ID here once you have it
-const ADSENSE_PUBLISHER_ID = ""; // e.g., "ca-pub-1234567890123456"
+const ADSENSE_PUBLISHER_ID = "ca-pub-1623540206966807";
 
 export function AdBanner({ adSlot, adFormat = "auto", className = "" }: AdBannerProps) {
   useEffect(() => {
