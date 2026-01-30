@@ -4,6 +4,9 @@ import { Roast, GreenCoffee } from '@/types/roast';
 import { getRoasts, generateId } from '@/lib/storage';
 import { RoastCard } from '@/components/RoastCard';
 import { CoffeeSelector } from '@/components/CoffeeSelector';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { SupportDialog } from '@/components/SupportDialog';
+import { AdBanner } from '@/components/AdBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Coffee, Flame, Plus } from 'lucide-react';
@@ -44,19 +47,28 @@ const Index = () => {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-              <Flame className="w-5 h-5 text-primary" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Flame className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Roast Log</h1>
+                <p className="text-sm text-muted-foreground">Coffee roasting companion</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Roast Log</h1>
-              <p className="text-sm text-muted-foreground">Coffee roasting companion</p>
+            <div className="flex items-center gap-2">
+              <SupportDialog adsEnabled={true} />
+              <ThemeToggle />
             </div>
           </div>
         </div>
       </header>
 
       <main className="container py-6 space-y-6">
+        {/* Ad Banner */}
+        <AdBanner adSlot="1234567890" className="w-full" />
+
         {/* Coffee Selection */}
         <Card className="p-4">
           {selectedCoffee ? (
@@ -134,6 +146,9 @@ const Index = () => {
             </div>
           )}
         </section>
+
+        {/* Bottom Ad Banner */}
+        <AdBanner adSlot="0987654321" className="w-full" />
       </main>
     </div>
   );
