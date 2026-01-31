@@ -43,7 +43,8 @@
     --temperature: 200 60% 40%;
     --note: 270 45% 50%;
     --voice: 150 50% 35%;
-    
+    --charge: 35 85% 45%;
+
     /* Graph colors - warm brown tones */
     --graph-line: 25 50% 40%;
     --graph-grid: 30 15% 80%;

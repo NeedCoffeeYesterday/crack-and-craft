@@ -1,4 +1,4 @@
-export type DataPointType = 'temperature' | 'note' | 'first-crack' | 'second-crack' | 'voice';
+export type DataPointType = 'temperature' | 'note' | 'first-crack' | 'second-crack' | 'voice' | 'charge' | 'custom';
 
 export interface DataPoint {
   id: string;
@@ -7,6 +7,7 @@ export interface DataPoint {
   temperature?: number;
   note?: string;
   voiceNote?: string; // base64 audio data
+  customButtonId?: string; // for custom markers
 }
 
 export interface GreenCoffee {
@@ -14,8 +15,25 @@ export interface GreenCoffee {
   name: string;
   origin?: string;
   altitude?: string;
+  processingMethod?: string;
   purchaseDate?: string;
   flavourNotes?: string;
+}
+
+export type CustomButtonType = 'marker' | 'temperature';
+
+export interface CustomButton {
+  id: string;
+  name: string;
+  shortName: string; // 3-4 char display
+  type: CustomButtonType;
+  color: string; // HSL values
+  enabled: boolean;
+  isBuiltIn: boolean;
+}
+
+export interface RoastSettings {
+  buttons: CustomButton[];
 }
 
 export interface Roast {

@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { DataPoint } from '@/types/roast';
+import { getSettings } from '@/lib/storage';
 
 interface RoastGraphProps {
   dataPoints: DataPoint[];
@@ -18,9 +19,11 @@ interface RoastGraphProps {
 }
 
 export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraphProps) => {
+  const settings = getSettings();
+  
   const chartData = useMemo(() => {
     const temperaturePoints = dataPoints
-      .filter(dp => dp.type === 'temperature' && dp.temperature !== undefined)
+      .filter(dp => (dp.type === 'temperature' || dp.type === 'charge') && dp.temperature !== undefined)
       .sort((a, b) => a.timestamp - b.timestamp);
 
     if (temperaturePoints.length === 0) {
@@ -39,7 +42,9 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
       dp.type === 'first-crack' || 
       dp.type === 'second-crack' || 
       dp.type === 'note' ||
-      dp.type === 'voice'
+      dp.type === 'voice' ||
+      dp.type === 'charge' ||
+      dp.type === 'custom'
     );
   }, [dataPoints]);
 
@@ -49,14 +54,32 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Warm, muted colors for light theme
-  const getMarkerColor = (type: string) => {
+  // Get color for markers including custom buttons
+  const getMarkerColor = (type: string, customButtonId?: string) => {
+    if (type === 'custom' && customButtonId) {
+      const customButton = settings.buttons.find(b => b.id === customButtonId);
+      return customButton ? `hsl(${customButton.color})` : 'hsl(25, 50%, 40%)';
+    }
     switch (type) {
       case 'first-crack': return 'hsl(0, 55%, 50%)';
       case 'second-crack': return 'hsl(30, 65%, 45%)';
       case 'note': return 'hsl(270, 40%, 55%)';
       case 'voice': return 'hsl(150, 45%, 40%)';
+      case 'charge': return 'hsl(35, 85%, 45%)';
       default: return 'hsl(25, 50%, 40%)';
+    }
+  };
+
+  const getMarkerLabel = (marker: DataPoint) => {
+    if (marker.type === 'custom' && marker.customButtonId) {
+      const customButton = settings.buttons.find(b => b.id === marker.customButtonId);
+      return customButton?.shortName || 'Custom';
+    }
+    switch (marker.type) {
+      case 'first-crack': return '1st';
+      case 'second-crack': return '2nd';
+      case 'charge': return 'Chrg';
+      default: return marker.type;
     }
   };
 
@@ -129,7 +152,7 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
             <ReferenceLine
               key={marker.id}
               x={marker.timestamp}
-              stroke={getMarkerColor(marker.type)}
+              stroke={getMarkerColor(marker.type, marker.customButtonId)}
               strokeWidth={2}
               strokeDasharray={marker.type === 'note' || marker.type === 'voice' ? '4 4' : undefined}
             />
@@ -152,10 +175,16 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
               key={marker.id}
               onClick={() => onPointClick?.(marker)}
               className="flex items-center gap-1.5 px-2 py-1 text-xs rounded-full transition-all hover:opacity-80 active:scale-95"
-              style={{ backgroundColor: `${getMarkerColor(marker.type)}18`, color: getMarkerColor(marker.type) }}
+              style={{ 
+                backgroundColor: `${getMarkerColor(marker.type, marker.customButtonId)}18`, 
+                color: getMarkerColor(marker.type, marker.customButtonId) 
+              }}
             >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getMarkerColor(marker.type) }} />
-              {formatTime(marker.timestamp)} - {marker.type === 'first-crack' ? '1st' : marker.type === 'second-crack' ? '2nd' : marker.type}
+              <span 
+                className="w-1.5 h-1.5 rounded-full" 
+                style={{ backgroundColor: getMarkerColor(marker.type, marker.customButtonId) }} 
+              />
+              {formatTime(marker.timestamp)} - {getMarkerLabel(marker)}
             </button>
           ))}
         </div>
