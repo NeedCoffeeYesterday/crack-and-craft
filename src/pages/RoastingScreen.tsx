@@ -115,6 +115,8 @@ const RoastingScreen = () => {
           voiceNote: audioData,
         });
         toast.success('Voice note saved');
+      } else if (voiceRecorder.error) {
+        toast.error(voiceRecorder.error);
       }
     } else {
       voiceRecorder.startRecording();

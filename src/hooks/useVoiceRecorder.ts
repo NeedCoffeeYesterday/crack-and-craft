@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { validateVoiceNoteStorage } from '@/lib/storageUtils';
 
 interface UseVoiceRecorderReturn {
   isRecording: boolean;
@@ -7,18 +8,21 @@ interface UseVoiceRecorderReturn {
   startRecording: () => Promise<void>;
   stopRecording: () => Promise<string | null>;
   clearRecording: () => void;
+  error: string | null;
 }
 
 export const useVoiceRecorder = (): UseVoiceRecorderReturn => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
   const startRecording = useCallback(async () => {
     try {
+      setError(null);
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -32,8 +36,9 @@ export const useVoiceRecorder = (): UseVoiceRecorderReturn => {
 
       mediaRecorder.start();
       setIsRecording(true);
-    } catch (error) {
-      console.error('Failed to start recording:', error);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to start recording';
+      setError(message);
     }
   }, []);
 
@@ -55,7 +60,21 @@ export const useVoiceRecorder = (): UseVoiceRecorderReturn => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64 = reader.result as string;
-          resolve(base64);
+          
+          // Validate size before returning
+          try {
+            validateVoiceNoteStorage(base64);
+            setError(null);
+            resolve(base64);
+          } catch (err) {
+            const message = err instanceof Error ? err.message : 'Voice note validation failed';
+            setError(message);
+            // Clean up the recording that's too large
+            URL.revokeObjectURL(url);
+            setAudioBlob(null);
+            setAudioUrl(null);
+            resolve(null);
+          }
         };
         reader.readAsDataURL(blob);
 
@@ -74,6 +93,7 @@ export const useVoiceRecorder = (): UseVoiceRecorderReturn => {
     }
     setAudioBlob(null);
     setAudioUrl(null);
+    setError(null);
     chunksRef.current = [];
   }, [audioUrl]);
 
@@ -84,5 +104,6 @@ export const useVoiceRecorder = (): UseVoiceRecorderReturn => {
     startRecording,
     stopRecording,
     clearRecording,
+    error,
   };
 };
