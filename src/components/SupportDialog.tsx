@@ -21,7 +21,7 @@ export function SupportDialog({ adsEnabled = false }: SupportDialogProps) {
   };
 
   const handleBuyMeCoffee = () => {
-    window.open("https://buymeacoffee.com/BPYn2c3APT", "_blank");
+    window.open("https://buymeacoffee.com/BPYn2c3APT", "_blank", "noopener,noreferrer");
   };
 
   return (
