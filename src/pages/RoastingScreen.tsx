@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Roast, DataPoint } from '@/types/roast';
-import { saveRoast, generateId } from '@/lib/storage';
+import { Roast, DataPoint, CustomButton } from '@/types/roast';
+import { saveRoast, generateId, getSettings } from '@/lib/storage';
 import { useRoastTimer } from '@/hooks/useRoastTimer';
 import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
 import { RoastGraph } from '@/components/RoastGraph';
@@ -10,7 +10,7 @@ import { TemperatureInput } from '@/components/TemperatureInput';
 import { NoteInput } from '@/components/NoteInput';
 import { DataPointDetail } from '@/components/DataPointDetail';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Play, Pause, Square, Coffee } from 'lucide-react';
+import { ArrowLeft, Play, Pause, Square, Coffee, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 
 const RoastingScreen = () => {
@@ -24,6 +24,8 @@ const RoastingScreen = () => {
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
+  const [pendingTempButton, setPendingTempButton] = useState<CustomButton | null>(null);
+  const [settings] = useState(getSettings());
 
   const timer = useRoastTimer();
   const voiceRecorder = useVoiceRecorder();
@@ -72,12 +74,16 @@ const RoastingScreen = () => {
   };
 
   const handleAddTemperature = (temperature: number) => {
+    const type = pendingTempButton?.id === 'charge' ? 'charge' : 'temperature';
     addDataPoint({
       timestamp: timer.elapsedTime,
-      type: 'temperature',
+      type,
       temperature,
+      customButtonId: pendingTempButton?.isBuiltIn ? undefined : pendingTempButton?.id,
     });
-    toast.success(`${temperature}°C logged`);
+    const label = pendingTempButton?.id === 'charge' ? 'Charge temp' : `${temperature}°C`;
+    toast.success(`${label} logged`);
+    setPendingTempButton(null);
   };
 
   const handleAddNote = (note: string) => {
@@ -87,22 +93,6 @@ const RoastingScreen = () => {
       note,
     });
     toast.success('Note added');
-  };
-
-  const handleFirstCrack = () => {
-    addDataPoint({
-      timestamp: timer.elapsedTime,
-      type: 'first-crack',
-    });
-    toast.success('First crack marked!', { icon: '🔥' });
-  };
-
-  const handleSecondCrack = () => {
-    addDataPoint({
-      timestamp: timer.elapsedTime,
-      type: 'second-crack',
-    });
-    toast.success('Second crack marked!', { icon: '🔥' });
   };
 
   const handleVoiceNote = async () => {
@@ -124,6 +114,47 @@ const RoastingScreen = () => {
     }
   };
 
+  const handleButtonClick = (button: CustomButton) => {
+    // Handle built-in buttons
+    switch (button.id) {
+      case 'temp':
+        setPendingTempButton(button);
+        setShowTempInput(true);
+        break;
+      case 'charge':
+        setPendingTempButton(button);
+        setShowTempInput(true);
+        break;
+      case 'note':
+        setShowNoteInput(true);
+        break;
+      case 'first-crack':
+        addDataPoint({ timestamp: timer.elapsedTime, type: 'first-crack' });
+        toast.success('First crack marked!', { icon: '🔥' });
+        break;
+      case 'second-crack':
+        addDataPoint({ timestamp: timer.elapsedTime, type: 'second-crack' });
+        toast.success('Second crack marked!', { icon: '🔥' });
+        break;
+      case 'voice':
+        handleVoiceNote();
+        break;
+      default:
+        // Custom button
+        if (button.type === 'temperature') {
+          setPendingTempButton(button);
+          setShowTempInput(true);
+        } else {
+          addDataPoint({
+            timestamp: timer.elapsedTime,
+            type: 'custom',
+            customButtonId: button.id,
+          });
+          toast.success(`${button.name} marked`);
+        }
+    }
+  };
+
   const handlePointClick = (point: DataPoint) => {
     setSelectedPoint(point);
   };
@@ -139,9 +170,6 @@ const RoastingScreen = () => {
     setDataPoints(prev => prev.filter(p => p.id !== id));
     toast.success('Deleted');
   };
-
-  const hasFirstCrack = dataPoints.some(dp => dp.type === 'first-crack');
-  const hasSecondCrack = dataPoints.some(dp => dp.type === 'second-crack');
 
   if (!roast) return null;
 
@@ -227,14 +255,10 @@ const RoastingScreen = () => {
         {/* Quick Actions */}
         {hasStarted && (
           <QuickActions
-            onAddTemperature={() => setShowTempInput(true)}
-            onAddNote={() => setShowNoteInput(true)}
-            onFirstCrack={handleFirstCrack}
-            onSecondCrack={handleSecondCrack}
-            onVoiceNote={handleVoiceNote}
+            buttons={settings.buttons}
+            onButtonClick={handleButtonClick}
             isRecording={voiceRecorder.isRecording}
-            hasFirstCrack={hasFirstCrack}
-            hasSecondCrack={hasSecondCrack}
+            dataPoints={dataPoints}
           />
         )}
 
@@ -242,7 +266,7 @@ const RoastingScreen = () => {
         {dataPoints.length > 0 && (
           <div className="mt-auto pt-4 border-t border-border">
             <p className="text-sm text-muted-foreground text-center">
-              {dataPoints.filter(dp => dp.type === 'temperature').length} temp readings •{' '}
+              {dataPoints.filter(dp => dp.type === 'temperature' || dp.type === 'charge').length} temp readings •{' '}
               {dataPoints.filter(dp => dp.type === 'note' || dp.type === 'voice').length} notes
             </p>
           </div>

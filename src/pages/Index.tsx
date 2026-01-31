@@ -9,7 +9,7 @@ import { SupportDialog } from '@/components/SupportDialog';
 import { AdBanner } from '@/components/AdBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Coffee, Flame, Plus } from 'lucide-react';
+import { Coffee, Flame, Plus, Settings } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -58,6 +58,14 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/settings')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
               <SupportDialog adsEnabled={true} />
               <ThemeToggle />
             </div>

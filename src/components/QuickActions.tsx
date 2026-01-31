@@ -1,81 +1,94 @@
-import { Thermometer, MessageSquare, Flame, Mic, MicOff } from 'lucide-react';
+import { Thermometer, MessageSquare, Flame, Mic, MicOff, Zap } from 'lucide-react';
+import { CustomButton, DataPoint } from '@/types/roast';
 
 interface QuickActionsProps {
-  onAddTemperature: () => void;
-  onAddNote: () => void;
-  onFirstCrack: () => void;
-  onSecondCrack: () => void;
-  onVoiceNote: () => void;
+  buttons: CustomButton[];
+  onButtonClick: (button: CustomButton) => void;
   isRecording: boolean;
-  hasFirstCrack: boolean;
-  hasSecondCrack: boolean;
+  dataPoints: DataPoint[];
 }
 
+const getButtonIcon = (buttonId: string, isRecording: boolean) => {
+  switch (buttonId) {
+    case 'temp':
+      return <Thermometer className="w-5 h-5" />;
+    case 'note':
+      return <MessageSquare className="w-5 h-5" />;
+    case 'charge':
+      return <Zap className="w-5 h-5" />;
+    case 'first-crack':
+    case 'second-crack':
+      return <Flame className="w-5 h-5" />;
+    case 'voice':
+      return isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />;
+    default:
+      return <Flame className="w-5 h-5" />;
+  }
+};
+
 export const QuickActions = ({
-  onAddTemperature,
-  onAddNote,
-  onFirstCrack,
-  onSecondCrack,
-  onVoiceNote,
+  buttons,
+  onButtonClick,
   isRecording,
-  hasFirstCrack,
-  hasSecondCrack,
+  dataPoints,
 }: QuickActionsProps) => {
+  const enabledButtons = buttons.filter(b => b.enabled);
+  
+  // Check which markers already exist (for single-use buttons like first/second crack)
+  const hasFirstCrack = dataPoints.some(dp => dp.type === 'first-crack');
+  const hasSecondCrack = dataPoints.some(dp => dp.type === 'second-crack');
+  const hasCharge = dataPoints.some(dp => dp.type === 'charge');
+
+  const isDisabled = (button: CustomButton) => {
+    if (button.id === 'first-crack') return hasFirstCrack;
+    if (button.id === 'second-crack') return hasSecondCrack;
+    if (button.id === 'charge') return hasCharge;
+    return false;
+  };
+
+  const getButtonStyles = (button: CustomButton) => {
+    const disabled = isDisabled(button);
+    const baseColor = `hsl(${button.color})`;
+    
+    if (button.id === 'voice' && isRecording) {
+      return 'bg-destructive/20 text-destructive animate-recording-pulse';
+    }
+    
+    if (disabled) {
+      return 'opacity-50 cursor-not-allowed';
+    }
+    
+    return '';
+  };
+
+  // Calculate grid columns based on button count
+  const gridCols = enabledButtons.length <= 4 
+    ? `grid-cols-${enabledButtons.length}` 
+    : enabledButtons.length <= 6 
+      ? 'grid-cols-3' 
+      : 'grid-cols-4';
+
   return (
-    <div className="grid grid-cols-5 gap-2">
-      <button
-        onClick={onAddTemperature}
-        className="action-button bg-temperature/20 text-temperature hover:bg-temperature/30"
-      >
-        <Thermometer className="w-5 h-5" />
-        <span className="text-xs font-medium">Temp</span>
-      </button>
-
-      <button
-        onClick={onAddNote}
-        className="action-button bg-note/20 text-note hover:bg-note/30"
-      >
-        <MessageSquare className="w-5 h-5" />
-        <span className="text-xs font-medium">Note</span>
-      </button>
-
-      <button
-        onClick={onFirstCrack}
-        disabled={hasFirstCrack}
-        className={`action-button ${
-          hasFirstCrack
-            ? 'bg-first-crack/10 text-first-crack/50 cursor-not-allowed'
-            : 'bg-first-crack/20 text-first-crack hover:bg-first-crack/30'
-        }`}
-      >
-        <Flame className="w-5 h-5" />
-        <span className="text-xs font-medium">1st</span>
-      </button>
-
-      <button
-        onClick={onSecondCrack}
-        disabled={hasSecondCrack}
-        className={`action-button ${
-          hasSecondCrack
-            ? 'bg-second-crack/10 text-second-crack/50 cursor-not-allowed'
-            : 'bg-second-crack/20 text-second-crack hover:bg-second-crack/30'
-        }`}
-      >
-        <Flame className="w-5 h-5" />
-        <span className="text-xs font-medium">2nd</span>
-      </button>
-
-      <button
-        onClick={onVoiceNote}
-        className={`action-button ${
-          isRecording
-            ? 'bg-destructive/20 text-destructive animate-recording-pulse'
-            : 'bg-voice/20 text-voice hover:bg-voice/30'
-        }`}
-      >
-        {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-        <span className="text-xs font-medium">{isRecording ? 'Stop' : 'Voice'}</span>
-      </button>
+    <div className={`grid ${enabledButtons.length <= 5 ? 'grid-cols-5' : 'grid-cols-4'} gap-2`}>
+      {enabledButtons.map((button) => (
+        <button
+          key={button.id}
+          onClick={() => !isDisabled(button) && onButtonClick(button)}
+          disabled={isDisabled(button)}
+          className={`action-button transition-all ${getButtonStyles(button)}`}
+          style={{
+            backgroundColor: isDisabled(button) 
+              ? `hsl(${button.color} / 0.1)` 
+              : `hsl(${button.color} / 0.2)`,
+            color: `hsl(${button.color})`,
+          }}
+        >
+          {getButtonIcon(button.id, isRecording)}
+          <span className="text-xs font-medium">
+            {button.id === 'voice' && isRecording ? 'Stop' : button.shortName}
+          </span>
+        </button>
+      ))}
     </div>
   );
 };

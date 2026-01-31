@@ -23,6 +23,7 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
     name: '',
     origin: '',
     altitude: '',
+    processingMethod: '',
     purchaseDate: '',
     flavourNotes: '',
   });
@@ -32,6 +33,7 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
       name: '',
       origin: '',
       altitude: '',
+      processingMethod: '',
       purchaseDate: '',
       flavourNotes: '',
     });
@@ -44,6 +46,7 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
         name: formData.name.trim(),
         origin: formData.origin?.trim() || undefined,
         altitude: formData.altitude?.trim() || undefined,
+        processingMethod: formData.processingMethod?.trim() || undefined,
         purchaseDate: formData.purchaseDate || undefined,
         flavourNotes: formData.flavourNotes?.trim() || undefined,
       };
@@ -69,6 +72,7 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
         name: formData.name.trim(),
         origin: formData.origin?.trim() || undefined,
         altitude: formData.altitude?.trim() || undefined,
+        processingMethod: formData.processingMethod?.trim() || undefined,
         purchaseDate: formData.purchaseDate || undefined,
         flavourNotes: formData.flavourNotes?.trim() || undefined,
       };
@@ -158,6 +162,17 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
                 className="bg-background border-border"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="coffee-processing">Processing Method</Label>
+            <Input
+              id="coffee-processing"
+              value={formData.processingMethod || ''}
+              onChange={(e) => setFormData({ ...formData, processingMethod: e.target.value })}
+              placeholder="e.g., Washed, Natural, Honey"
+              className="bg-background border-border"
+            />
           </div>
 
           <div className="space-y-2">
@@ -255,13 +270,16 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
                   {coffee.altitude && (
                     <p><span className="text-muted-foreground">Altitude:</span> {coffee.altitude}</p>
                   )}
+                  {coffee.processingMethod && (
+                    <p><span className="text-muted-foreground">Process:</span> {coffee.processingMethod}</p>
+                  )}
                   {coffee.purchaseDate && (
                     <p><span className="text-muted-foreground">Purchased:</span> {formatDate(coffee.purchaseDate)}</p>
                   )}
                   {coffee.flavourNotes && (
                     <p><span className="text-muted-foreground">Flavours:</span> {coffee.flavourNotes}</p>
                   )}
-                  {!coffee.origin && !coffee.altitude && !coffee.purchaseDate && !coffee.flavourNotes && (
+                  {!coffee.origin && !coffee.altitude && !coffee.processingMethod && !coffee.purchaseDate && !coffee.flavourNotes && (
                     <p className="text-muted-foreground italic">No additional details</p>
                   )}
                 </div>
