@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { DataPoint } from '@/types/roast';
+import { getSettings } from '@/lib/storage';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Thermometer, MessageSquare, Flame, Mic, Play, Pause, Trash2 } from 'lucide-react';
+import { Thermometer, MessageSquare, Flame, Mic, Play, Pause, Trash2, Zap } from 'lucide-react';
 
 interface DataPointDetailProps {
   dataPoint: DataPoint | null;
@@ -17,6 +18,7 @@ export const DataPointDetail = ({ dataPoint, open, onClose, onUpdate, onDelete }
   const [note, setNote] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const settings = getSettings();
 
   useEffect(() => {
     if (dataPoint) {
@@ -30,24 +32,41 @@ export const DataPointDetail = ({ dataPoint, open, onClose, onUpdate, onDelete }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getIcon = (type: string) => {
+  const getIcon = (type: string, customButtonId?: string) => {
+    if (type === 'custom' && customButtonId) {
+      const button = settings.buttons.find(b => b.id === customButtonId);
+      if (button) {
+        return (
+          <div
+            className="w-5 h-5 rounded-full"
+            style={{ backgroundColor: `hsl(${button.color})` }}
+          />
+        );
+      }
+    }
     switch (type) {
       case 'temperature': return <Thermometer className="w-5 h-5 text-temperature" />;
       case 'note': return <MessageSquare className="w-5 h-5 text-note" />;
       case 'first-crack': return <Flame className="w-5 h-5 text-first-crack" />;
       case 'second-crack': return <Flame className="w-5 h-5 text-second-crack" />;
       case 'voice': return <Mic className="w-5 h-5 text-voice" />;
+      case 'charge': return <Zap className="w-5 h-5 text-primary" />;
       default: return null;
     }
   };
 
-  const getTypeName = (type: string) => {
+  const getTypeName = (type: string, customButtonId?: string) => {
+    if (type === 'custom' && customButtonId) {
+      const button = settings.buttons.find(b => b.id === customButtonId);
+      return button?.name || 'Custom Marker';
+    }
     switch (type) {
       case 'temperature': return 'Temperature';
       case 'note': return 'Note';
       case 'first-crack': return 'First Crack';
       case 'second-crack': return 'Second Crack';
       case 'voice': return 'Voice Note';
+      case 'charge': return 'Charge Temperature';
       default: return type;
     }
   };
@@ -84,8 +103,8 @@ export const DataPointDetail = ({ dataPoint, open, onClose, onUpdate, onDelete }
       <DialogContent className="max-w-sm mx-auto bg-card border-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {getIcon(dataPoint.type)}
-            {getTypeName(dataPoint.type)}
+            {getIcon(dataPoint.type, dataPoint.customButtonId)}
+            {getTypeName(dataPoint.type, dataPoint.customButtonId)}
             <span className="text-sm font-normal text-muted-foreground ml-auto">
               {formatTime(dataPoint.timestamp)}
             </span>
@@ -93,7 +112,7 @@ export const DataPointDetail = ({ dataPoint, open, onClose, onUpdate, onDelete }
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          {dataPoint.type === 'temperature' && dataPoint.temperature && (
+          {(dataPoint.type === 'temperature' || dataPoint.type === 'charge') && dataPoint.temperature && (
             <div className="text-center">
               <span className="temperature-value text-temperature">{dataPoint.temperature}°C</span>
             </div>
