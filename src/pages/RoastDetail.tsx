@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Roast, DataPoint } from '@/types/roast';
-import { getRoastById, saveRoast, deleteRoast } from '@/lib/storage';
+import { getRoastById, saveRoast, deleteRoast, getSettings } from '@/lib/storage';
 import { RoastGraph } from '@/components/RoastGraph';
 import { DataPointDetail } from '@/components/DataPointDetail';
 import { CoffeeDetails } from '@/components/CoffeeDetails';
@@ -26,6 +26,28 @@ const RoastDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [roast, setRoast] = useState<Roast | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null);
+  const settings = getSettings();
+
+  const getPointLabel = (point: DataPoint) => {
+    if (point.type === 'custom' && point.customButtonId) {
+      const button = settings.buttons.find(b => b.id === point.customButtonId);
+      return button?.name || 'Custom';
+    }
+    switch (point.type) {
+      case 'first-crack': return '1st Crack';
+      case 'second-crack': return '2nd Crack';
+      case 'charge': return 'Charge';
+      default: return point.type.charAt(0).toUpperCase() + point.type.slice(1);
+    }
+  };
+
+  const getPointColor = (point: DataPoint) => {
+    if (point.type === 'custom' && point.customButtonId) {
+      const button = settings.buttons.find(b => b.id === point.customButtonId);
+      return button ? `hsl(${button.color})` : undefined;
+    }
+    return undefined;
+  };
 
   useEffect(() => {
     if (id) {
@@ -239,17 +261,23 @@ const RoastDetail = () => {
                         <span className="font-mono text-sm text-muted-foreground w-12">
                           {formatTime(point.timestamp)}
                         </span>
-                        <span className={`
-                          px-2 py-0.5 text-xs font-medium rounded-full
-                          ${point.type === 'temperature' ? 'bg-temperature/20 text-temperature' : ''}
-                          ${point.type === 'note' ? 'bg-note/20 text-note' : ''}
-                          ${point.type === 'voice' ? 'bg-voice/20 text-voice' : ''}
-                          ${point.type === 'first-crack' ? 'bg-first-crack/20 text-first-crack' : ''}
-                          ${point.type === 'second-crack' ? 'bg-second-crack/20 text-second-crack' : ''}
-                        `}>
-                          {point.type === 'first-crack' ? '1st Crack' : 
-                           point.type === 'second-crack' ? '2nd Crack' : 
-                           point.type.charAt(0).toUpperCase() + point.type.slice(1)}
+                        <span 
+                          className={`
+                            px-2 py-0.5 text-xs font-medium rounded-full
+                            ${point.type === 'temperature' ? 'bg-temperature/20 text-temperature' : ''}
+                            ${point.type === 'note' ? 'bg-note/20 text-note' : ''}
+                            ${point.type === 'voice' ? 'bg-voice/20 text-voice' : ''}
+                            ${point.type === 'first-crack' ? 'bg-first-crack/20 text-first-crack' : ''}
+                            ${point.type === 'second-crack' ? 'bg-second-crack/20 text-second-crack' : ''}
+                            ${point.type === 'charge' ? 'bg-primary/20 text-primary' : ''}
+                            ${point.type === 'custom' ? 'rounded-full' : ''}
+                          `}
+                          style={point.type === 'custom' ? { 
+                            backgroundColor: `${getPointColor(point)}20`, 
+                            color: getPointColor(point) 
+                          } : undefined}
+                        >
+                          {getPointLabel(point)}
                         </span>
                       </div>
                       {point.temperature && (
