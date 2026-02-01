@@ -74,14 +74,28 @@ const RoastingScreen = () => {
   };
 
   const handleAddTemperature = (temperature: number) => {
-    const type = pendingTempButton?.id === 'charge' ? 'charge' : 'temperature';
+    // Determine the data point type based on the button
+    let type: DataPoint['type'];
+    if (pendingTempButton?.id === 'charge') {
+      type = 'charge';
+    } else if (pendingTempButton?.isBuiltIn) {
+      type = 'temperature';
+    } else {
+      type = 'custom'; // Custom temperature buttons use 'custom' type
+    }
+    
     addDataPoint({
       timestamp: timer.elapsedTime,
       type,
       temperature,
       customButtonId: pendingTempButton?.isBuiltIn ? undefined : pendingTempButton?.id,
     });
-    const label = pendingTempButton?.id === 'charge' ? 'Charge temp' : `${temperature}°C`;
+    
+    const label = pendingTempButton?.id === 'charge' 
+      ? 'Charge temp' 
+      : pendingTempButton?.isBuiltIn 
+        ? `${temperature}°C` 
+        : `${pendingTempButton?.name}: ${temperature}°C`;
     toast.success(`${label} logged`);
     setPendingTempButton(null);
   };
