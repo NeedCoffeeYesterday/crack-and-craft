@@ -6,7 +6,8 @@ export interface DataPoint {
   type: DataPointType;
   temperature?: number;
   note?: string;
-  voiceNote?: string; // base64 audio data
+  voiceNote?: string; // base64 audio data (web) or file URI (native)
+  voiceNoteUri?: string; // file URI for native recordings
   customButtonId?: string; // for custom markers
 }
 
