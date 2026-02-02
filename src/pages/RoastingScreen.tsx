@@ -111,12 +111,12 @@ const RoastingScreen = () => {
 
   const handleVoiceNote = async () => {
     if (voiceRecorder.isRecording) {
-      const audioData = await voiceRecorder.stopRecording();
-      if (audioData) {
+      const result = await voiceRecorder.stopRecording();
+      if (result && result.base64) {
         addDataPoint({
           timestamp: timer.elapsedTime,
           type: 'voice',
-          voiceNote: audioData,
+          voiceNote: result.base64,
         });
         toast.success('Voice note saved');
       } else if (voiceRecorder.error) {
