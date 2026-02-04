@@ -6,7 +6,6 @@ import { RoastCard } from '@/components/RoastCard';
 import { CoffeeSelector } from '@/components/CoffeeSelector';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SupportDialog } from '@/components/SupportDialog';
-import { AdBanner } from '@/components/AdBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Coffee, Flame, Plus, Settings } from 'lucide-react';
@@ -44,8 +43,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background safe-area-inset">
+      {/* AdMob Banner Space - Reserved for native ads */}
+      <div className="h-14 bg-muted/30 flex items-center justify-center text-xs text-muted-foreground">
+        AdMob Banner Space
+      </div>
+
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
+      <header className="sticky top-14 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -66,7 +70,7 @@ const Index = () => {
               >
                 <Settings className="w-5 h-5" />
               </Button>
-              <SupportDialog adsEnabled={true} />
+              <SupportDialog />
               <ThemeToggle />
             </div>
           </div>
@@ -74,9 +78,6 @@ const Index = () => {
       </header>
 
       <main className="container py-6 space-y-6">
-        {/* Ad Banner */}
-        <AdBanner adSlot="1234567890" className="w-full" />
-
         {/* Coffee Selection */}
         <Card className="p-4">
           {selectedCoffee ? (
@@ -154,9 +155,6 @@ const Index = () => {
             </div>
           )}
         </section>
-
-        {/* Bottom Ad Banner */}
-        <AdBanner adSlot="0987654321" className="w-full" />
       </main>
     </div>
   );

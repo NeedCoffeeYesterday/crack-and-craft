@@ -1,4 +1,4 @@
-import { Heart, Coffee, Play } from "lucide-react";
+import { Heart, Coffee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,17 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-interface SupportDialogProps {
-  adsEnabled?: boolean;
-}
-
-export function SupportDialog({ adsEnabled = false }: SupportDialogProps) {
-  const handleWatchAd = () => {
-    // This would trigger an ad display when AdSense is configured
-    // For now, show a placeholder message
-    alert("Ad feature coming soon! Thank you for your support.");
-  };
-
+export function SupportDialog() {
   const handleBuyMeCoffee = () => {
     window.open("https://buymeacoffee.com/BPYn2c3APT", "_blank", "noopener,noreferrer");
   };
@@ -47,23 +37,6 @@ export function SupportDialog({ adsEnabled = false }: SupportDialogProps) {
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 py-4">
-          {adsEnabled && (
-            <Button
-              variant="secondary"
-              className="w-full justify-start gap-3 h-auto py-4"
-              onClick={handleWatchAd}
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                <Play className="h-5 w-5 text-primary" />
-              </div>
-              <div className="text-left">
-                <div className="font-medium">Watch an Ad</div>
-                <div className="text-sm text-muted-foreground">
-                  Support for free by watching a short ad
-                </div>
-              </div>
-            </Button>
-          )}
           <Button
             variant="secondary"
             className="w-full justify-start gap-3 h-auto py-4"
