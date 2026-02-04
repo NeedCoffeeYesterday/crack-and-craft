@@ -1,4 +1,4 @@
-export type DataPointType = 'temperature' | 'note' | 'first-crack' | 'second-crack' | 'voice' | 'charge' | 'custom' | 'speed';
+export type DataPointType = 'temperature' | 'note' | 'first-crack' | 'second-crack' | 'voice' | 'charge' | 'custom';
 
 export interface DataPoint {
   id: string;
@@ -21,7 +21,7 @@ export interface GreenCoffee {
   flavourNotes?: string;
 }
 
-export type CustomButtonType = 'marker' | 'temperature' | 'speed';
+export type CustomButtonType = 'marker' | 'temperature';
 
 export interface CustomButton {
   id: string;

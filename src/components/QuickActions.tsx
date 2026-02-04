@@ -1,4 +1,4 @@
-import { Thermometer, MessageSquare, Flame, Mic, MicOff, Zap, Disc, Wind, Gauge } from 'lucide-react';
+import { Thermometer, MessageSquare, Flame, Mic, MicOff, Zap } from 'lucide-react';
 import { CustomButton, DataPoint } from '@/types/roast';
 
 interface QuickActionsProps {
@@ -8,7 +8,7 @@ interface QuickActionsProps {
   dataPoints: DataPoint[];
 }
 
-const getButtonIcon = (buttonId: string, buttonType: string, isRecording: boolean) => {
+const getButtonIcon = (buttonId: string, isRecording: boolean) => {
   switch (buttonId) {
     case 'temp':
       return <Thermometer className="w-5 h-5" />;
@@ -21,14 +21,7 @@ const getButtonIcon = (buttonId: string, buttonType: string, isRecording: boolea
       return <Flame className="w-5 h-5" />;
     case 'voice':
       return isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />;
-    case 'drum-speed':
-      return <Disc className="w-5 h-5" />;
-    case 'fan-speed':
-      return <Wind className="w-5 h-5" />;
     default:
-      // Custom buttons: show icon based on type
-      if (buttonType === 'speed') return <Gauge className="w-5 h-5" />;
-      if (buttonType === 'temperature') return <Thermometer className="w-5 h-5" />;
       return <Flame className="w-5 h-5" />;
   }
 };
@@ -90,7 +83,7 @@ export const QuickActions = ({
             color: `hsl(${button.color})`,
           }}
         >
-          {getButtonIcon(button.id, button.type, isRecording)}
+          {getButtonIcon(button.id, isRecording)}
           <span className="text-xs font-medium">
             {button.id === 'voice' && isRecording ? 'Stop' : button.shortName}
           </span>
