@@ -143,8 +143,13 @@ const RoastDetail = () => {
 
   return (
     <div className="min-h-screen bg-background safe-area-inset">
+      {/* AdMob Banner Space - Reserved for native ads */}
+      <div className="h-14 bg-muted/30 flex items-center justify-center text-xs text-muted-foreground">
+        AdMob Banner Space
+      </div>
+
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
+      <header className="sticky top-14 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container py-3">
           <div className="flex items-center justify-between">
             <button

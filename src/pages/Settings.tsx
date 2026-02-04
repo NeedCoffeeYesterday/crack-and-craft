@@ -62,7 +62,12 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-background safe-area-inset">
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
+      {/* AdMob Banner Space - Reserved for native ads */}
+      <div className="h-14 bg-muted/30 flex items-center justify-center text-xs text-muted-foreground">
+        AdMob Banner Space
+      </div>
+
+      <header className="sticky top-14 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container py-3">
           <div className="flex items-center gap-3">
             <button
