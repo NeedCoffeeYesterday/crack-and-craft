@@ -9,7 +9,7 @@ const SETTINGS_KEY = 'roast_settings';
 const DataPointSchema = z.object({
   id: z.string(),
   timestamp: z.number(),
-  type: z.enum(['temperature', 'note', 'first-crack', 'second-crack', 'voice', 'charge', 'custom']),
+  type: z.enum(['temperature', 'note', 'first-crack', 'second-crack', 'voice', 'charge', 'custom', 'speed']),
   temperature: z.number().optional(),
   note: z.string().optional(),
   voiceNote: z.string().optional(),
@@ -41,7 +41,7 @@ const CustomButtonSchema = z.object({
   id: z.string(),
   name: z.string(),
   shortName: z.string(),
-  type: z.enum(['marker', 'temperature']),
+  type: z.enum(['marker', 'temperature', 'speed']),
   color: z.string(),
   enabled: z.boolean(),
   isBuiltIn: z.boolean(),
@@ -154,8 +154,10 @@ const getDefaultButtons = (): CustomButton[] => [
   { id: 'note', name: 'Note', shortName: 'Note', type: 'marker', color: '270 45% 50%', enabled: true, isBuiltIn: true },
   { id: 'charge', name: 'Charge', shortName: 'Chrg', type: 'temperature', color: '35 85% 45%', enabled: true, isBuiltIn: true },
   { id: 'first-crack', name: 'First Crack', shortName: '1st', type: 'marker', color: '0 60% 45%', enabled: true, isBuiltIn: true },
-  { id: 'second-crack', name: 'Second Crack', shortName: '2nd', type: 'marker', color: '30 70% 40%', enabled: true, isBuiltIn: true },
+  { id: 'second-crack', name: 'Second Crack', shortName: '2nd', type: 'marker', color: '30 70% 40%', enabled: false, isBuiltIn: true },
   { id: 'voice', name: 'Voice Note', shortName: 'Voice', type: 'marker', color: '150 50% 35%', enabled: true, isBuiltIn: true },
+  { id: 'drum-speed', name: 'Drum Speed', shortName: 'Drum', type: 'speed', color: '280 50% 50%', enabled: false, isBuiltIn: true },
+  { id: 'fan-speed', name: 'Fan Speed', shortName: 'Fan', type: 'speed', color: '190 60% 45%', enabled: false, isBuiltIn: true },
 ];
 
 export const getSettings = (): RoastSettings => {

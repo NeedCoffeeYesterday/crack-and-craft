@@ -7,6 +7,7 @@ import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
 import { RoastGraph } from '@/components/RoastGraph';
 import { QuickActions } from '@/components/QuickActions';
 import { TemperatureInput } from '@/components/TemperatureInput';
+import { SpeedInput } from '@/components/SpeedInput';
 import { NoteInput } from '@/components/NoteInput';
 import { DataPointDetail } from '@/components/DataPointDetail';
 import { Button } from '@/components/ui/button';
@@ -21,10 +22,12 @@ const RoastingScreen = () => {
   const [roast, setRoast] = useState<Roast | null>(initialRoast || null);
   const [dataPoints, setDataPoints] = useState<DataPoint[]>([]);
   const [showTempInput, setShowTempInput] = useState(false);
+  const [showSpeedInput, setShowSpeedInput] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [pendingTempButton, setPendingTempButton] = useState<CustomButton | null>(null);
+  const [pendingSpeedButton, setPendingSpeedButton] = useState<CustomButton | null>(null);
   const [settings] = useState(getSettings());
 
   const timer = useRoastTimer();
@@ -128,6 +131,17 @@ const RoastingScreen = () => {
     }
   };
 
+  const handleAddSpeed = (speed: number) => {
+    addDataPoint({
+      timestamp: timer.elapsedTime,
+      type: 'speed',
+      temperature: speed, // reusing temperature field for speed value
+      customButtonId: pendingSpeedButton?.id,
+    });
+    toast.success(`${pendingSpeedButton?.name}: ${speed}% logged`);
+    setPendingSpeedButton(null);
+  };
+
   const handleButtonClick = (button: CustomButton) => {
     // Handle built-in buttons
     switch (button.id) {
@@ -153,11 +167,19 @@ const RoastingScreen = () => {
       case 'voice':
         handleVoiceNote();
         break;
+      case 'drum-speed':
+      case 'fan-speed':
+        setPendingSpeedButton(button);
+        setShowSpeedInput(true);
+        break;
       default:
         // Custom button
         if (button.type === 'temperature') {
           setPendingTempButton(button);
           setShowTempInput(true);
+        } else if (button.type === 'speed') {
+          setPendingSpeedButton(button);
+          setShowSpeedInput(true);
         } else {
           addDataPoint({
             timestamp: timer.elapsedTime,
@@ -305,6 +327,14 @@ const RoastingScreen = () => {
         onClose={() => setShowNoteInput(false)}
         onSubmit={handleAddNote}
         timestamp={timer.elapsedTime}
+      />
+
+      <SpeedInput
+        open={showSpeedInput}
+        onClose={() => setShowSpeedInput(false)}
+        onSubmit={handleAddSpeed}
+        timestamp={timer.elapsedTime}
+        label={pendingSpeedButton?.name || 'Speed'}
       />
 
       <DataPointDetail
