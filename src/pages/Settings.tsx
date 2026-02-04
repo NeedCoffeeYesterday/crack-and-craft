@@ -16,7 +16,7 @@ const Settings = () => {
   const [newButton, setNewButton] = useState({
     name: '',
     shortName: '',
-    type: 'marker' as 'marker' | 'temperature' | 'speed',
+    type: 'marker' as 'marker' | 'temperature',
     color: '180 50% 45%',
   });
 
@@ -103,7 +103,7 @@ const Settings = () => {
                   <div>
                     <p className="font-medium">{button.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {button.type === 'temperature' ? 'Opens temperature input' : button.type === 'speed' ? 'Opens speed input' : 'Creates marker on graph'}
+                      {button.type === 'temperature' ? 'Opens temperature input' : 'Creates marker on graph'}
                     </p>
                   </div>
                 </div>
@@ -163,7 +163,7 @@ const Settings = () => {
 
               <div className="space-y-2">
                 <Label>Button Type</Label>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2">
                   <Button
                     type="button"
                     variant={newButton.type === 'marker' ? 'default' : 'outline'}
@@ -180,21 +180,11 @@ const Settings = () => {
                   >
                     Temperature
                   </Button>
-                  <Button
-                    type="button"
-                    variant={newButton.type === 'speed' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setNewButton({ ...newButton, type: 'speed' })}
-                  >
-                    Speed
-                  </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {newButton.type === 'marker' 
                     ? 'Creates a marker on the graph when tapped' 
-                    : newButton.type === 'temperature'
-                    ? 'Opens temperature input dialog when tapped'
-                    : 'Opens speed input dialog when tapped'}
+                    : 'Opens temperature input dialog when tapped'}
                 </p>
               </div>
 
@@ -253,7 +243,7 @@ const Settings = () => {
                     <div>
                       <p className="font-medium">{button.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {button.type === 'temperature' ? 'Temperature input' : button.type === 'speed' ? 'Speed input' : 'Graph marker'} · "{button.shortName}"
+                        {button.type === 'temperature' ? 'Temperature input' : 'Graph marker'} · "{button.shortName}"
                       </p>
                     </div>
                   </div>

@@ -21,7 +21,7 @@ export interface GreenCoffee {
   flavourNotes?: string;
 }
 
-export type CustomButtonType = 'marker' | 'temperature' | 'speed';
+export type CustomButtonType = 'marker' | 'temperature';
 
 export interface CustomButton {
   id: string;
