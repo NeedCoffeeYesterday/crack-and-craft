@@ -1,4 +1,4 @@
-export type DataPointType = 'temperature' | 'note' | 'first-crack' | 'second-crack' | 'voice' | 'charge' | 'custom';
+ export type DataPointType = 'temperature' | 'note' | 'first-crack' | 'second-crack' | 'voice' | 'charge' | 'custom' | 'drum-speed' | 'fan-speed' | 'speed';
 
 export interface DataPoint {
   id: string;
@@ -9,6 +9,8 @@ export interface DataPoint {
   voiceNote?: string; // base64 audio data (web) or file URI (native)
   voiceNoteUri?: string; // file URI for native recordings
   customButtonId?: string; // for custom markers
+   speedValue?: number; // for speed data points
+   speedUnit?: 'rpm' | '%' | ''; // unit for speed
 }
 
 export interface GreenCoffee {
@@ -21,7 +23,7 @@ export interface GreenCoffee {
   flavourNotes?: string;
 }
 
-export type CustomButtonType = 'marker' | 'temperature';
+ export type CustomButtonType = 'marker' | 'temperature' | 'speed';
 
 export interface CustomButton {
   id: string;
@@ -31,6 +33,7 @@ export interface CustomButton {
   color: string; // HSL values
   enabled: boolean;
   isBuiltIn: boolean;
+   speedUnit?: 'rpm' | '%' | ''; // for speed type buttons
 }
 
 export interface RoastSettings {
