@@ -9,6 +9,7 @@ import { QuickActions } from '@/components/QuickActions';
 import { TemperatureInput } from '@/components/TemperatureInput';
 import { NoteInput } from '@/components/NoteInput';
 import { DataPointDetail } from '@/components/DataPointDetail';
+ import { SpeedInput } from '@/components/SpeedInput';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Play, Pause, Square, Coffee, Settings } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,9 +23,11 @@ const RoastingScreen = () => {
   const [dataPoints, setDataPoints] = useState<DataPoint[]>([]);
   const [showTempInput, setShowTempInput] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
+   const [showSpeedInput, setShowSpeedInput] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<DataPoint | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [pendingTempButton, setPendingTempButton] = useState<CustomButton | null>(null);
+   const [pendingSpeedButton, setPendingSpeedButton] = useState<CustomButton | null>(null);
   const [settings] = useState(getSettings());
 
   const timer = useRoastTimer();
@@ -99,6 +102,34 @@ const RoastingScreen = () => {
     toast.success(`${label} logged`);
     setPendingTempButton(null);
   };
+ 
+   const handleAddSpeed = (value: number) => {
+     let type: DataPoint['type'];
+     if (pendingSpeedButton?.id === 'drum-speed') {
+       type = 'drum-speed';
+     } else if (pendingSpeedButton?.id === 'fan-speed') {
+       type = 'fan-speed';
+     } else {
+       type = 'speed'; // Custom speed buttons use 'speed' type
+     }
+     
+     const unit = pendingSpeedButton?.speedUnit || '';
+     
+     addDataPoint({
+       timestamp: timer.elapsedTime,
+       type,
+       speedValue: value,
+       speedUnit: unit,
+       customButtonId: pendingSpeedButton?.isBuiltIn ? undefined : pendingSpeedButton?.id,
+     });
+     
+     const unitDisplay = unit === 'rpm' ? ' RPM' : unit === '%' ? '%' : '';
+     const label = pendingSpeedButton?.isBuiltIn 
+       ? `${pendingSpeedButton?.name}: ${value}${unitDisplay}` 
+       : `${pendingSpeedButton?.name}: ${value}${unitDisplay}`;
+     toast.success(`${label} logged`);
+     setPendingSpeedButton(null);
+   };
 
   const handleAddNote = (note: string) => {
     addDataPoint({
@@ -153,11 +184,19 @@ const RoastingScreen = () => {
       case 'voice':
         handleVoiceNote();
         break;
+       case 'drum-speed':
+       case 'fan-speed':
+         setPendingSpeedButton(button);
+         setShowSpeedInput(true);
+         break;
       default:
         // Custom button
         if (button.type === 'temperature') {
           setPendingTempButton(button);
           setShowTempInput(true);
+         } else if (button.type === 'speed') {
+           setPendingSpeedButton(button);
+           setShowSpeedInput(true);
         } else {
           addDataPoint({
             timestamp: timer.elapsedTime,
@@ -306,6 +345,18 @@ const RoastingScreen = () => {
         onSubmit={handleAddNote}
         timestamp={timer.elapsedTime}
       />
+ 
+       <SpeedInput
+         open={showSpeedInput}
+         onClose={() => {
+           setShowSpeedInput(false);
+           setPendingSpeedButton(null);
+         }}
+         onSubmit={handleAddSpeed}
+         timestamp={timer.elapsedTime}
+         title={pendingSpeedButton?.name || 'Add Speed'}
+         unit={pendingSpeedButton?.speedUnit || ''}
+       />
 
       <DataPointDetail
         dataPoint={selectedPoint}

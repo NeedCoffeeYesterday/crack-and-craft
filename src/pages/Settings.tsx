@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Plus, Trash2, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -16,8 +17,9 @@ const Settings = () => {
   const [newButton, setNewButton] = useState({
     name: '',
     shortName: '',
-    type: 'marker' as 'marker' | 'temperature',
+     type: 'marker' as 'marker' | 'temperature' | 'speed',
     color: '180 50% 45%',
+     speedUnit: '' as 'rpm' | '%' | '',
   });
 
   const handleToggleButton = (id: string, enabled: boolean) => {
@@ -43,10 +45,11 @@ const Settings = () => {
       type: newButton.type,
       color: newButton.color,
       enabled: true,
+       speedUnit: newButton.type === 'speed' ? newButton.speedUnit : undefined,
     });
     
     setSettings(getSettings());
-    setNewButton({ name: '', shortName: '', type: 'marker', color: '180 50% 45%' });
+     setNewButton({ name: '', shortName: '', type: 'marker', color: '180 50% 45%', speedUnit: '' });
     setIsAddingButton(false);
     toast.success(`${created.name} button added`);
   };
@@ -103,7 +106,7 @@ const Settings = () => {
                   <div>
                     <p className="font-medium">{button.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {button.type === 'temperature' ? 'Opens temperature input' : 'Creates marker on graph'}
+                       {button.type === 'temperature' ? 'Opens temperature input' : button.type === 'speed' ? `Opens speed input${button.speedUnit ? ` (${button.speedUnit === 'rpm' ? 'RPM' : '%'})` : ''}` : 'Creates marker on graph'}
                     </p>
                   </div>
                 </div>
@@ -180,13 +183,42 @@ const Settings = () => {
                   >
                     Temperature
                   </Button>
+                   <Button
+                     type="button"
+                     variant={newButton.type === 'speed' ? 'default' : 'outline'}
+                     size="sm"
+                     onClick={() => setNewButton({ ...newButton, type: 'speed' })}
+                   >
+                     Speed
+                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {newButton.type === 'marker' 
                     ? 'Creates a marker on the graph when tapped' 
-                    : 'Opens temperature input dialog when tapped'}
+                     : newButton.type === 'temperature'
+                       ? 'Opens temperature input dialog when tapped'
+                       : 'Opens speed input dialog when tapped'}
                 </p>
               </div>
+ 
+               {newButton.type === 'speed' && (
+                 <div className="space-y-2">
+                   <Label>Speed Unit</Label>
+                   <Select
+                     value={newButton.speedUnit}
+                     onValueChange={(value: 'rpm' | '%' | '') => setNewButton({ ...newButton, speedUnit: value })}
+                   >
+                     <SelectTrigger className="bg-background">
+                       <SelectValue placeholder="Select unit (optional)" />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="">None</SelectItem>
+                       <SelectItem value="rpm">RPM</SelectItem>
+                       <SelectItem value="%">%</SelectItem>
+                     </SelectContent>
+                   </Select>
+                 </div>
+               )}
 
               <div className="space-y-2">
                 <Label>Color</Label>
@@ -243,7 +275,7 @@ const Settings = () => {
                     <div>
                       <p className="font-medium">{button.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {button.type === 'temperature' ? 'Temperature input' : 'Graph marker'} · "{button.shortName}"
+                       {button.type === 'temperature' ? 'Temperature input' : button.type === 'speed' ? `Speed input${button.speedUnit ? ` (${button.speedUnit === 'rpm' ? 'RPM' : '%'})` : ''}` : 'Graph marker'} · "{button.shortName}"
                       </p>
                     </div>
                   </div>
