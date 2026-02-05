@@ -206,13 +206,13 @@ const Settings = () => {
                    <Label>Speed Unit</Label>
                    <Select
                      value={newButton.speedUnit}
-                     onValueChange={(value: 'rpm' | '%' | '') => setNewButton({ ...newButton, speedUnit: value })}
+                     onValueChange={(value: string) => setNewButton({ ...newButton, speedUnit: value === 'none' ? '' : value as 'rpm' | '%' | '' })}
                    >
                      <SelectTrigger className="bg-background">
                        <SelectValue placeholder="Select unit (optional)" />
                      </SelectTrigger>
                      <SelectContent>
-                       <SelectItem value="">None</SelectItem>
+                       <SelectItem value="none">None</SelectItem>
                        <SelectItem value="rpm">RPM</SelectItem>
                        <SelectItem value="%">%</SelectItem>
                      </SelectContent>
