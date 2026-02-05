@@ -27,6 +27,9 @@ const RoastSchema = z.object({
   duration: z.number().optional(),
   dataPoints: z.array(DataPointSchema),
   notes: z.string().optional(),
+   greenWeight: z.number().optional(),
+   roastedWeight: z.number().optional(),
+   weightLossPercent: z.number().optional(),
 });
 
 const GreenCoffeeSchema = z.object({
@@ -89,6 +92,9 @@ export const getRoasts = (): Roast[] => {
       duration: r.duration,
       dataPoints: r.dataPoints as DataPoint[],
       notes: r.notes,
+       greenWeight: r.greenWeight,
+       roastedWeight: r.roastedWeight,
+       weightLossPercent: r.weightLossPercent,
     }));
   } catch {
     console.error('Failed to parse roast data from localStorage');
