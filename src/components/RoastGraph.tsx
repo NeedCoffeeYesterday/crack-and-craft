@@ -44,7 +44,10 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
       dp.type === 'note' ||
       dp.type === 'voice' ||
       dp.type === 'charge' ||
-      dp.type === 'custom'
+       dp.type === 'custom' ||
+       dp.type === 'drum-speed' ||
+       dp.type === 'fan-speed' ||
+       dp.type === 'speed'
     );
   }, [dataPoints]);
 
@@ -56,7 +59,7 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
 
   // Get color for markers including custom buttons
   const getMarkerColor = (type: string, customButtonId?: string) => {
-    if (type === 'custom' && customButtonId) {
+     if ((type === 'custom' || type === 'speed') && customButtonId) {
       const customButton = settings.buttons.find(b => b.id === customButtonId);
       return customButton ? `hsl(${customButton.color})` : 'hsl(25, 50%, 40%)';
     }
@@ -66,19 +69,33 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
       case 'note': return 'hsl(270, 40%, 55%)';
       case 'voice': return 'hsl(150, 45%, 40%)';
       case 'charge': return 'hsl(35, 85%, 45%)';
+       case 'drum-speed': return 'hsl(180, 50%, 40%)';
+       case 'fan-speed': return 'hsl(220, 50%, 45%)';
       default: return 'hsl(25, 50%, 40%)';
     }
   };
 
   const getMarkerLabel = (marker: DataPoint) => {
-    if (marker.type === 'custom' && marker.customButtonId) {
+     if ((marker.type === 'custom' || marker.type === 'speed') && marker.customButtonId) {
       const customButton = settings.buttons.find(b => b.id === marker.customButtonId);
-      return customButton?.shortName || 'Custom';
+       if (marker.type === 'speed' && marker.speedValue !== undefined) {
+         const unit = marker.speedUnit === 'rpm' ? 'RPM' : marker.speedUnit === '%' ? '%' : '';
+         return `${customButton?.shortName || ''} ${marker.speedValue}${unit}`;
+       }
+       return customButton?.shortName || 'Custom';
     }
     switch (marker.type) {
       case 'first-crack': return '1st';
       case 'second-crack': return '2nd';
       case 'charge': return 'Chrg';
+       case 'drum-speed': {
+         const unit = marker.speedUnit === 'rpm' ? 'RPM' : '';
+         return `Drum ${marker.speedValue ?? ''}${unit}`;
+       }
+       case 'fan-speed': {
+         const unit = marker.speedUnit === '%' ? '%' : '';
+         return `Fan ${marker.speedValue ?? ''}${unit}`;
+       }
       default: return marker.type;
     }
   };
@@ -154,7 +171,13 @@ export const RoastGraph = ({ dataPoints, currentTime, onPointClick }: RoastGraph
               x={marker.timestamp}
               stroke={getMarkerColor(marker.type, marker.customButtonId)}
               strokeWidth={2}
-              strokeDasharray={marker.type === 'note' || marker.type === 'voice' ? '4 4' : undefined}
+               strokeDasharray={
+                 marker.type === 'note' || marker.type === 'voice' 
+                   ? '4 4' 
+                   : marker.type === 'drum-speed' || marker.type === 'fan-speed' || marker.type === 'speed'
+                     ? '6 3'
+                     : undefined
+               }
             />
           ))}
           {currentTime !== undefined && (
