@@ -10,6 +10,7 @@ import { TemperatureInput } from '@/components/TemperatureInput';
 import { NoteInput } from '@/components/NoteInput';
 import { DataPointDetail } from '@/components/DataPointDetail';
  import { SpeedInput } from '@/components/SpeedInput';
+import { WeightOutDialog } from '@/components/WeightOutDialog';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Play, Pause, Square, Coffee, Settings } from 'lucide-react';
 import { toast } from 'sonner';
@@ -28,6 +29,8 @@ const RoastingScreen = () => {
   const [hasStarted, setHasStarted] = useState(false);
   const [pendingTempButton, setPendingTempButton] = useState<CustomButton | null>(null);
    const [pendingSpeedButton, setPendingSpeedButton] = useState<CustomButton | null>(null);
+   const [showWeightOutDialog, setShowWeightOutDialog] = useState(false);
+   const [pendingCompletedRoast, setPendingCompletedRoast] = useState<Roast | null>(null);
   const [settings] = useState(getSettings());
 
   const timer = useRoastTimer();
@@ -70,11 +73,48 @@ const RoastingScreen = () => {
         duration: timer.elapsedTime,
         dataPoints,
       };
-      saveRoast(completedRoast);
-      toast.success('Roast saved!');
-      navigate(`/roast/${roast.id}`);
+       
+       // If there's a green weight, prompt for roasted weight
+       if (completedRoast.greenWeight) {
+         setPendingCompletedRoast(completedRoast);
+         setShowWeightOutDialog(true);
+       } else {
+         saveRoast(completedRoast);
+         toast.success('Roast saved!');
+         navigate(`/roast/${roast.id}`);
+       }
     }
   };
+ 
+   const handleWeightOutSubmit = (roastedWeight: number) => {
+     if (pendingCompletedRoast) {
+       const greenWeight = pendingCompletedRoast.greenWeight || 0;
+       const weightLossPercent = greenWeight > 0 
+         ? ((greenWeight - roastedWeight) / greenWeight) * 100 
+         : undefined;
+       
+       const finalRoast: Roast = {
+         ...pendingCompletedRoast,
+         roastedWeight,
+         weightLossPercent,
+       };
+       
+       saveRoast(finalRoast);
+       toast.success('Roast saved!');
+       navigate(`/roast/${pendingCompletedRoast.id}`);
+     }
+   };
+ 
+   const handleWeightOutClose = () => {
+     // Save roast without weight out if dialog is closed
+     if (pendingCompletedRoast) {
+       saveRoast(pendingCompletedRoast);
+       toast.success('Roast saved!');
+       navigate(`/roast/${pendingCompletedRoast.id}`);
+     }
+     setShowWeightOutDialog(false);
+     setPendingCompletedRoast(null);
+   };
 
   const handleAddTemperature = (temperature: number) => {
     // Determine the data point type based on the button
@@ -365,6 +405,13 @@ const RoastingScreen = () => {
         onUpdate={handleUpdatePoint}
         onDelete={handleDeletePoint}
       />
+ 
+       <WeightOutDialog
+         open={showWeightOutDialog}
+         onClose={handleWeightOutClose}
+         onSubmit={handleWeightOutSubmit}
+         greenWeight={roast?.greenWeight}
+       />
     </div>
   );
 };

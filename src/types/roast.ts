@@ -49,6 +49,9 @@ export interface Roast {
   duration?: number; // seconds
   dataPoints: DataPoint[];
   notes?: string;
+   greenWeight?: number; // grams
+   roastedWeight?: number; // grams
+   weightLossPercent?: number; // calculated: ((green - roasted) / green) * 100
 }
 
 export interface RoastState {

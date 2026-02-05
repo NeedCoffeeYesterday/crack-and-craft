@@ -8,13 +8,16 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { SupportDialog } from '@/components/SupportDialog';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Coffee, Flame, Plus, Settings } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Coffee, Flame, Plus, Settings, Scale } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
   const [roasts, setRoasts] = useState<Roast[]>([]);
   const [selectedCoffee, setSelectedCoffee] = useState<GreenCoffee | null>(null);
   const [showCoffeeSelector, setShowCoffeeSelector] = useState(false);
+   const [greenWeight, setGreenWeight] = useState<string>('');
 
   useEffect(() => {
     setRoasts(getRoasts());
@@ -26,12 +29,15 @@ const Index = () => {
       return;
     }
 
+     const parsedWeight = greenWeight ? parseFloat(greenWeight) : undefined;
+ 
     const newRoast: Roast = {
       id: generateId(),
       coffeeId: selectedCoffee.id,
       coffeeName: selectedCoffee.name,
       startTime: new Date(),
       dataPoints: [],
+       greenWeight: parsedWeight && parsedWeight > 0 ? parsedWeight : undefined,
     };
 
     navigate('/roast', { state: { roast: newRoast } });
@@ -120,6 +126,33 @@ const Index = () => {
             </div>
           )}
         </Card>
+ 
+         {/* Green Weight Input */}
+         {selectedCoffee && (
+           <Card className="p-4">
+             <div className="flex items-center gap-3">
+               <Scale className="w-5 h-5 text-primary shrink-0" />
+               <div className="flex-1">
+                 <Label htmlFor="green-weight" className="text-sm text-muted-foreground">
+                   Green Weight (optional)
+                 </Label>
+                 <div className="flex items-center gap-2 mt-1">
+                   <Input
+                     id="green-weight"
+                     type="number"
+                     placeholder="Enter weight"
+                     value={greenWeight}
+                     onChange={(e) => setGreenWeight(e.target.value)}
+                     className="flex-1"
+                     min="0"
+                     step="0.1"
+                   />
+                   <span className="text-sm text-muted-foreground font-medium">g</span>
+                 </div>
+               </div>
+             </div>
+           </Card>
+         )}
 
         {/* Start Roast Button */}
         <Button
