@@ -261,6 +261,7 @@ const RoastDetail = () => {
         <WeightTracking
           greenWeight={roast.greenWeight}
           roastedWeight={roast.roastedWeight}
+          coffeeId={roast.coffeeId}
           onUpdate={handleWeightUpdate}
         />
 
