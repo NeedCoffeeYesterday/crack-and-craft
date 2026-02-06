@@ -5,9 +5,10 @@ import { getRoastById, saveRoast, deleteRoast, getSettings } from '@/lib/storage
 import { RoastGraph } from '@/components/RoastGraph';
 import { DataPointDetail } from '@/components/DataPointDetail';
 import { CoffeeDetails } from '@/components/CoffeeDetails';
+import { WeightTracking } from '@/components/WeightTracking';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Coffee, Clock, Thermometer, Flame, Trash2, Scale, TrendingDown } from 'lucide-react';
+import { ArrowLeft, Coffee, Clock, Thermometer, Flame, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -120,6 +121,19 @@ const RoastDetail = () => {
       toast.success('Roast deleted');
       navigate('/');
     }
+  };
+
+  const handleWeightUpdate = (greenWeight?: number, roastedWeight?: number, weightLossPercent?: number) => {
+    if (!roast) return;
+    
+    const updatedRoast = {
+      ...roast,
+      greenWeight,
+      roastedWeight,
+      weightLossPercent,
+    };
+    setRoast(updatedRoast);
+    saveRoast(updatedRoast);
   };
 
   if (!roast) {
@@ -241,38 +255,14 @@ const RoastDetail = () => {
             </Card>
           )}
 
-           {roast.greenWeight && (
-             <Card className="p-4">
-               <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                 <Scale className="w-4 h-4" />
-                 <span className="text-sm">Green Weight</span>
-               </div>
-               <p className="text-lg font-semibold font-mono">{roast.greenWeight}g</p>
-             </Card>
-           )}
-
-           {roast.roastedWeight && (
-             <Card className="p-4">
-               <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                 <Scale className="w-4 h-4" />
-                 <span className="text-sm">Roasted Weight</span>
-               </div>
-               <p className="text-lg font-semibold font-mono">{roast.roastedWeight}g</p>
-             </Card>
-           )}
-
-           {roast.weightLossPercent !== undefined && (
-             <Card className="p-4 bg-primary/5 border-primary/20">
-               <div className="flex items-center gap-2 text-primary mb-1">
-                 <TrendingDown className="w-4 h-4" />
-                 <span className="text-sm">Weight Loss</span>
-               </div>
-               <p className="text-lg font-semibold font-mono text-primary">
-                 {roast.weightLossPercent.toFixed(1)}%
-               </p>
-             </Card>
-           )}
         </div>
+
+        {/* Weight Tracking */}
+        <WeightTracking
+          greenWeight={roast.greenWeight}
+          roastedWeight={roast.roastedWeight}
+          onUpdate={handleWeightUpdate}
+        />
 
         {/* Graph */}
         <RoastGraph
