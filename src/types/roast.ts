@@ -21,6 +21,9 @@ export interface GreenCoffee {
   processingMethod?: string;
   purchaseDate?: string;
   flavourNotes?: string;
+  inventory?: number; // grams in stock
+  lowStockThreshold?: number; // alert threshold in grams
+  lowStockAlertEnabled?: boolean; // whether to show low stock alerts
 }
 
  export type CustomButtonType = 'marker' | 'temperature' | 'speed';

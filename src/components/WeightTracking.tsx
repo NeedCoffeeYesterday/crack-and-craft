@@ -1,22 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Scale, TrendingDown } from 'lucide-react';
+import { updateCoffeeInventory, getCoffeeById } from '@/lib/storage';
+import { toast } from 'sonner';
 
 interface WeightTrackingProps {
   greenWeight?: number;
   roastedWeight?: number;
+  coffeeId: string;
   onUpdate: (greenWeight?: number, roastedWeight?: number, weightLossPercent?: number) => void;
 }
 
-export const WeightTracking = ({ greenWeight, roastedWeight, onUpdate }: WeightTrackingProps) => {
+export const WeightTracking = ({ greenWeight, roastedWeight, coffeeId, onUpdate }: WeightTrackingProps) => {
   const [green, setGreen] = useState<string>(greenWeight?.toString() || '');
   const [roasted, setRoasted] = useState<string>(roastedWeight?.toString() || '');
+  const previousGreenWeight = useRef<number | undefined>(greenWeight);
 
   useEffect(() => {
     setGreen(greenWeight?.toString() || '');
     setRoasted(roastedWeight?.toString() || '');
+    previousGreenWeight.current = greenWeight;
   }, [greenWeight, roastedWeight]);
 
   const calculateLossPercent = (greenVal: number, roastedVal: number): number | undefined => {
@@ -25,12 +30,43 @@ export const WeightTracking = ({ greenWeight, roastedWeight, onUpdate }: WeightT
     return ((greenVal - roastedVal) / greenVal) * 100;
   };
 
+  const handleInventoryAdjustment = (oldWeight: number | undefined, newWeight: number | undefined) => {
+    const coffee = getCoffeeById(coffeeId);
+    if (!coffee || coffee.inventory === undefined) return;
+
+    const oldVal = oldWeight || 0;
+    const newVal = newWeight || 0;
+    const delta = newVal - oldVal;
+
+    if (delta !== 0) {
+      const updatedCoffee = updateCoffeeInventory(coffeeId, delta);
+      if (updatedCoffee) {
+        // Check for low stock alert
+        if (updatedCoffee.lowStockAlertEnabled && 
+            updatedCoffee.lowStockThreshold && 
+            updatedCoffee.inventory !== undefined &&
+            updatedCoffee.inventory <= updatedCoffee.lowStockThreshold) {
+          toast.warning(`Low stock alert: ${updatedCoffee.name} is running low (${updatedCoffee.inventory}g remaining)`, {
+            duration: 5000,
+          });
+        }
+      }
+    }
+  };
+
   const handleGreenChange = (value: string) => {
     setGreen(value);
     const greenVal = value ? parseFloat(value) : undefined;
     const roastedVal = roasted ? parseFloat(roasted) : undefined;
     const lossPercent = greenVal && roastedVal ? calculateLossPercent(greenVal, roastedVal) : undefined;
-    onUpdate(greenVal && greenVal > 0 ? greenVal : undefined, roastedVal && roastedVal > 0 ? roastedVal : undefined, lossPercent);
+    
+    const validGreen = greenVal && greenVal > 0 ? greenVal : undefined;
+    
+    // Adjust inventory based on the change in green weight
+    handleInventoryAdjustment(previousGreenWeight.current, validGreen);
+    previousGreenWeight.current = validGreen;
+    
+    onUpdate(validGreen, roastedVal && roastedVal > 0 ? roastedVal : undefined, lossPercent);
   };
 
   const handleRoastedChange = (value: string) => {

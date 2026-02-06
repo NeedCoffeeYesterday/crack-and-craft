@@ -40,6 +40,9 @@ const GreenCoffeeSchema = z.object({
   processingMethod: z.string().optional(),
   purchaseDate: z.string().optional(),
   flavourNotes: z.string().optional(),
+  inventory: z.number().optional(),
+  lowStockThreshold: z.number().optional(),
+  lowStockAlertEnabled: z.boolean().optional(),
 });
 
 const CustomButtonSchema = z.object({
@@ -125,6 +128,25 @@ export const saveGreenCoffee = (coffee: GreenCoffee): void => {
   localStorage.setItem(COFFEES_KEY, JSON.stringify(coffees));
 };
 
+export const updateCoffeeInventory = (coffeeId: string, amountToDeduct: number): GreenCoffee | null => {
+  const coffees = getGreenCoffees();
+  const coffee = coffees.find(c => c.id === coffeeId);
+  
+  if (!coffee) return null;
+  
+  const currentInventory = coffee.inventory ?? 0;
+  const newInventory = Math.max(0, currentInventory - amountToDeduct);
+  
+  coffee.inventory = newInventory;
+  saveGreenCoffee(coffee);
+  
+  return coffee;
+};
+
+export const getCoffeeById = (id: string): GreenCoffee | undefined => {
+  return getGreenCoffees().find(c => c.id === id);
+};
+
 export const getGreenCoffees = (): GreenCoffee[] => {
   const data = localStorage.getItem(COFFEES_KEY);
   if (!data) return [];
@@ -146,6 +168,9 @@ export const getGreenCoffees = (): GreenCoffee[] => {
       processingMethod: c.processingMethod,
       purchaseDate: c.purchaseDate,
       flavourNotes: c.flavourNotes,
+      inventory: c.inventory,
+      lowStockThreshold: c.lowStockThreshold,
+      lowStockAlertEnabled: c.lowStockAlertEnabled,
     }));
   } catch {
     console.error('Failed to parse coffee data from localStorage');

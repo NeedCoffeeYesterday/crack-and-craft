@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Roast, GreenCoffee } from '@/types/roast';
-import { getRoasts, generateId } from '@/lib/storage';
+import { getRoasts, generateId, updateCoffeeInventory, getCoffeeById } from '@/lib/storage';
 import { RoastCard } from '@/components/RoastCard';
 import { CoffeeSelector } from '@/components/CoffeeSelector';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Coffee, Flame, Plus, Settings, Scale } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -29,7 +30,24 @@ const Index = () => {
       return;
     }
 
-     const parsedWeight = greenWeight ? parseFloat(greenWeight) : undefined;
+    const parsedWeight = greenWeight ? parseFloat(greenWeight) : undefined;
+    const weightToUse = parsedWeight && parsedWeight > 0 ? parsedWeight : undefined;
+
+    // Deduct from inventory if green weight is entered
+    if (weightToUse && selectedCoffee.inventory !== undefined) {
+      const updatedCoffee = updateCoffeeInventory(selectedCoffee.id, weightToUse);
+      if (updatedCoffee) {
+        // Check for low stock alert
+        if (updatedCoffee.lowStockAlertEnabled && 
+            updatedCoffee.lowStockThreshold && 
+            updatedCoffee.inventory !== undefined &&
+            updatedCoffee.inventory <= updatedCoffee.lowStockThreshold) {
+          toast.warning(`Low stock alert: ${updatedCoffee.name} is running low (${updatedCoffee.inventory}g remaining)`, {
+            duration: 5000,
+          });
+        }
+      }
+    }
  
     const newRoast: Roast = {
       id: generateId(),
@@ -37,7 +55,7 @@ const Index = () => {
       coffeeName: selectedCoffee.name,
       startTime: new Date(),
       dataPoints: [],
-       greenWeight: parsedWeight && parsedWeight > 0 ? parsedWeight : undefined,
+      greenWeight: weightToUse,
     };
 
     navigate('/roast', { state: { roast: newRoast } });

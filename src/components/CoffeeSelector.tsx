@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Plus, Coffee, Check, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Plus, Coffee, Check, ChevronDown, ChevronUp, Pencil, AlertTriangle, Package } from 'lucide-react';
 
 interface CoffeeSelectorProps {
   selectedCoffee: GreenCoffee | null;
@@ -26,6 +27,9 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
     processingMethod: '',
     purchaseDate: '',
     flavourNotes: '',
+    inventory: undefined,
+    lowStockThreshold: undefined,
+    lowStockAlertEnabled: false,
   });
 
   const resetForm = () => {
@@ -36,7 +40,22 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
       processingMethod: '',
       purchaseDate: '',
       flavourNotes: '',
+      inventory: undefined,
+      lowStockThreshold: undefined,
+      lowStockAlertEnabled: false,
     });
+  };
+
+  const formatInventory = (grams?: number) => {
+    if (grams === undefined || grams === null) return null;
+    if (grams >= 1000) return `${(grams / 1000).toFixed(1)}kg`;
+    return `${grams}g`;
+  };
+
+  const isLowStock = (coffee: GreenCoffee) => {
+    if (!coffee.lowStockAlertEnabled || !coffee.lowStockThreshold) return false;
+    if (coffee.inventory === undefined) return false;
+    return coffee.inventory <= coffee.lowStockThreshold;
   };
 
   const handleAddCoffee = () => {
@@ -49,6 +68,9 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
         processingMethod: formData.processingMethod?.trim() || undefined,
         purchaseDate: formData.purchaseDate || undefined,
         flavourNotes: formData.flavourNotes?.trim() || undefined,
+        inventory: formData.inventory,
+        lowStockThreshold: formData.lowStockThreshold,
+        lowStockAlertEnabled: formData.lowStockAlertEnabled,
       };
       saveGreenCoffee(newCoffee);
       setCoffees(getGreenCoffees());
@@ -75,6 +97,9 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
         processingMethod: formData.processingMethod?.trim() || undefined,
         purchaseDate: formData.purchaseDate || undefined,
         flavourNotes: formData.flavourNotes?.trim() || undefined,
+        inventory: formData.inventory,
+        lowStockThreshold: formData.lowStockThreshold,
+        lowStockAlertEnabled: formData.lowStockAlertEnabled,
       };
       saveGreenCoffee(updatedCoffee);
       setCoffees(getGreenCoffees());
@@ -197,6 +222,65 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
             />
           </div>
 
+          {/* Inventory Section */}
+          <div className="pt-3 border-t border-border space-y-3">
+            <div className="flex items-center gap-2">
+              <Package className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium">Inventory</span>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="coffee-inventory">Current Stock</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="coffee-inventory"
+                  type="number"
+                  value={formData.inventory ?? ''}
+                  onChange={(e) => setFormData({ ...formData, inventory: e.target.value ? Number(e.target.value) : undefined })}
+                  placeholder="e.g., 5000"
+                  className="bg-background border-border flex-1"
+                  min="0"
+                  step="1"
+                />
+                <span className="text-sm text-muted-foreground font-medium">g</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+              <div className="space-y-0.5">
+                <Label htmlFor="low-stock-alert" className="text-sm font-medium cursor-pointer">
+                  Low Stock Alert
+                </Label>
+                <p className="text-xs text-muted-foreground">Get notified when running low</p>
+              </div>
+              <Switch
+                id="low-stock-alert"
+                checked={formData.lowStockAlertEnabled || false}
+                onCheckedChange={(checked) => setFormData({ ...formData, lowStockAlertEnabled: checked })}
+              />
+            </div>
+
+            {formData.lowStockAlertEnabled && (
+              <div className="space-y-2">
+                <Label htmlFor="low-stock-threshold">Alert Threshold</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="low-stock-threshold"
+                    type="number"
+                    value={formData.lowStockThreshold ?? ''}
+                    onChange={(e) => setFormData({ ...formData, lowStockThreshold: e.target.value ? Number(e.target.value) : undefined })}
+                    placeholder="e.g., 1000"
+                    className="bg-background border-border flex-1"
+                    min="0"
+                    step="100"
+                  />
+                  <span className="text-sm text-muted-foreground font-medium">g</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Alert when stock falls below this amount</p>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-2 pt-2">
             <Button
               onClick={isEditing ? handleUpdateCoffee : handleAddCoffee}
@@ -228,12 +312,31 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
                     : 'bg-secondary hover:bg-secondary/80 border border-transparent'
                 }`}
               >
-                <Coffee className="w-5 h-5 text-primary shrink-0" />
+                {isLowStock(coffee) ? (
+                  <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />
+                ) : (
+                  <Coffee className="w-5 h-5 text-primary shrink-0" />
+                )}
                 <div className="flex-1 min-w-0">
-                  <span className="font-medium block truncate">{coffee.name}</span>
-                  {coffee.origin && (
-                    <span className="text-xs text-muted-foreground">{coffee.origin}</span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium truncate">{coffee.name}</span>
+                    {isLowStock(coffee) && (
+                      <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-destructive/15 text-destructive">
+                        LOW
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {coffee.origin && <span>{coffee.origin}</span>}
+                    {coffee.inventory !== undefined && (
+                      <>
+                        {coffee.origin && <span>•</span>}
+                        <span className={isLowStock(coffee) ? 'text-destructive font-medium' : ''}>
+                          {formatInventory(coffee.inventory)} in stock
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
                 {selectedCoffee?.id === coffee.id && (
                   <Check className="w-5 h-5 text-primary shrink-0" />
@@ -264,6 +367,12 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
 
               {expandedCoffeeId === coffee.id && (
                 <div className="ml-8 p-3 bg-muted/50 rounded-lg text-sm space-y-1 border-l-2 border-primary/30">
+                  {coffee.inventory !== undefined && (
+                    <p className={isLowStock(coffee) ? 'text-destructive' : ''}>
+                      <span className="text-muted-foreground">Stock:</span> {formatInventory(coffee.inventory)}
+                      {isLowStock(coffee) && ' ⚠️ Low stock!'}
+                    </p>
+                  )}
                   {coffee.origin && (
                     <p><span className="text-muted-foreground">Origin:</span> {coffee.origin}</p>
                   )}
@@ -279,7 +388,10 @@ export const CoffeeSelector = ({ selectedCoffee, onSelect }: CoffeeSelectorProps
                   {coffee.flavourNotes && (
                     <p><span className="text-muted-foreground">Flavours:</span> {coffee.flavourNotes}</p>
                   )}
-                  {!coffee.origin && !coffee.altitude && !coffee.processingMethod && !coffee.purchaseDate && !coffee.flavourNotes && (
+                  {coffee.lowStockAlertEnabled && coffee.lowStockThreshold && (
+                    <p><span className="text-muted-foreground">Alert below:</span> {formatInventory(coffee.lowStockThreshold)}</p>
+                  )}
+                  {!coffee.origin && !coffee.altitude && !coffee.processingMethod && !coffee.purchaseDate && !coffee.flavourNotes && coffee.inventory === undefined && (
                     <p className="text-muted-foreground italic">No additional details</p>
                   )}
                 </div>
