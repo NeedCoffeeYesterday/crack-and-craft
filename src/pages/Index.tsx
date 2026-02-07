@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Coffee, Flame, Plus, Settings, Scale, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
-import roastLogLogo from '@/assets/roastlog-logo.png';
+
 
 const Index = () => {
   const navigate = useNavigate();
@@ -75,35 +75,32 @@ const Index = () => {
 
       {/* Header */}
       <header className="sticky top-14 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container py-3">
-          {/* Top row: Logo + action buttons */}
+        <div className="container py-4">
           <div className="flex items-center justify-between">
-            <img 
-              src={roastLogLogo} 
-              alt="RoastLog" 
-              className="h-10 w-auto"
-            />
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Roast Log</h1>
+              <p className="text-sm text-muted-foreground">Coffee roasting companion</p>
+            </div>
             <div className="flex items-center gap-1">
-              <ThemeToggle />
+              <ThemeToggle iconSize={22} />
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate('/settings')}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground h-10 w-10"
               >
-                <Settings className="w-5 h-5" />
+                <Settings className="w-6 h-6" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => navigate('/calendar')}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground h-10 w-10"
               >
-                <Calendar className="w-5 h-5" />
+                <Calendar className="w-6 h-6" />
               </Button>
             </div>
           </div>
-          {/* Bottom row: Support button */}
           <div className="flex justify-end mt-2">
             <SupportDialog />
           </div>
