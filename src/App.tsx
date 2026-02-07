@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import RoastingScreen from "./pages/RoastingScreen";
 import RoastDetail from "./pages/RoastDetail";
 import Settings from "./pages/Settings";
+import Calendar from "./pages/Calendar";
+import CalendarDayRoasts from "./pages/CalendarDayRoasts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/roast" element={<RoastingScreen />} />
             <Route path="/roast/:id" element={<RoastDetail />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/calendar/:date" element={<CalendarDayRoasts />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
