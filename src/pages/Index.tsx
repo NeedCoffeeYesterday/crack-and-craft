@@ -77,9 +77,9 @@ const Index = () => {
       <header className="sticky top-14 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Roast Log</h1>
-              <p className="text-sm text-muted-foreground">Coffee roasting companion</p>
+            <div className="flex flex-col justify-center">
+              <h1 className="text-2xl font-bold text-foreground">Roast Log</h1>
+              <p className="text-base text-muted-foreground">Coffee roasting companion</p>
             </div>
             <div className="flex items-center gap-1">
               <ThemeToggle iconSize={22} />
