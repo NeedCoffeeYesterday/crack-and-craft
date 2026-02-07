@@ -75,9 +75,13 @@ const Index = () => {
 
       {/* Header */}
       <header className="sticky top-14 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container py-3">
-          <div className="flex items-start justify-between">
-            <div className="flex flex-col gap-1">
+        <div className="container py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Roast Log</h1>
+              <p className="text-sm text-muted-foreground">Coffee roasting companion</p>
+            </div>
+            <div className="flex items-center gap-1">
               <ThemeToggle iconSize={22} />
               <Button
                 variant="ghost"
@@ -96,13 +100,9 @@ const Index = () => {
                 <Calendar className="w-6 h-6" />
               </Button>
             </div>
-            <div className="flex-1 flex flex-col justify-center items-start pl-4">
-              <h1 className="text-xl font-bold text-foreground">Roast Log</h1>
-              <p className="text-sm text-muted-foreground">Coffee roasting companion</p>
-            </div>
-            <div className="flex flex-col items-end justify-start">
-              <SupportDialog />
-            </div>
+          </div>
+          <div className="flex justify-end mt-2">
+            <SupportDialog />
           </div>
         </div>
       </header>
