@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Coffee, Flame, Plus, Settings, Scale, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
+import roastLogLogo from '@/assets/roastlog-logo.png';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -74,26 +75,16 @@ const Index = () => {
 
       {/* Header */}
       <header className="sticky top-14 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
-        <div className="container py-4">
+        <div className="container py-3">
+          {/* Top row: Logo + action buttons */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Flame className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Roast Log</h1>
-                <p className="text-sm text-muted-foreground">Coffee roasting companion</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/calendar')}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Calendar className="w-5 h-5" />
-              </Button>
+            <img 
+              src={roastLogLogo} 
+              alt="RoastLog" 
+              className="h-10 w-auto"
+            />
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
               <Button
                 variant="ghost"
                 size="icon"
@@ -102,9 +93,19 @@ const Index = () => {
               >
                 <Settings className="w-5 h-5" />
               </Button>
-              <SupportDialog />
-              <ThemeToggle />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/calendar')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Calendar className="w-5 h-5" />
+              </Button>
             </div>
+          </div>
+          {/* Bottom row: Support button */}
+          <div className="flex justify-end mt-2">
+            <SupportDialog />
           </div>
         </div>
       </header>
