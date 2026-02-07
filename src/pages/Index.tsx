@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Coffee, Flame, Plus, Settings, Scale } from 'lucide-react';
+import { Coffee, Flame, Plus, Settings, Scale, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Index = () => {
@@ -86,6 +86,14 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/calendar')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Calendar className="w-5 h-5" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
